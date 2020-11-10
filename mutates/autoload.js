@@ -1,22 +1,63 @@
+/**
+ * Implements mutants working
+ * 
+ * Creating ``script`` tags and push those to head or to body.
+ *
+ * @link   https://github.com/EnterVPL/input-mutants
+ * @author Łukasz Bieniek.
+ * @since  1.0.0
+ */
 (async function() {
+    // If you need to reconfigure loading, just change the flags.
 
-    // Controls version cache
+    /*********
+     * FLAGS *
+     *********/ 
+
+    /**
+     * Controls version cache
+     * If the changes do not apply then change the version one up and set the GET ``?number`` parameter with the same number when loading autoload.js.
+     * E.g. ``<script src="mutates/autoload?2"></script>``
+     * 
+     * @member version
+     */
     const version = '1';
 
-    // Base separator
+    /** 
+     * Base separator
+     * @member s
+     */
     const s = '/';
 
-    // Base path
+    /**
+     * Base path
+     * @member base_path
+     */
     const base_path = 'mutates';
 
-    // Path to tools
+    /**
+     * Path to tools
+     * @member toolsPath
+     */
     const toolsPath = createPath("mTools.js", base_path, s);
 
-    // List of all mutations
+    /**
+     * List of all mutants
+     * If you want to load fewer mutants then remove from the list those mutants that you don't handle.
+     * @member mutates_list
+     */
     const mutates_list = [ "text" ];
 
-    // Base file in mutation
+    /**
+     * Base file in mutation
+     * @member main_mutate_file
+     */
     const main_mutate_file = "main.js";
+
+
+    /*************
+     * FUNCTIONS *
+     *************/
 
     /**
      * Create path
@@ -45,20 +86,7 @@
     }
 
     /**
-     * Create path and tag
-     * 
-     * @param {String} file 
-     * @param {String} base 
-     * @param {String} separator
-     * 
-     * @returns {Object}
-     */
-    function createTagWithPath(file, base, separator) {
-        return createScriptTag(createPath(file, base, separator));
-    }
-
-    /**
-     * Load  
+     * Load script(s) to ``<head> . . . </head>``
      * 
      * @param {String} path 
      */
@@ -66,14 +94,24 @@
         document.head.appendChild(createScriptTag(path));
     }
 
-    function loadBodyScripts() {
-        for(let mutate of mutates_list) {
-            let path = base_path + s + mutate;
-            document.body.appendChild(createTagWithPath(main_mutate_file, path, s));
-        }
+    /**
+     * Load script(s) to ``<body> . . . </body>``
+     * 
+     * @param {String} path
+     */
+    function loadBodyScripts(path) {
+        document.body.appendChild(createScriptTag(path));
     }
 
-    loadHeadScripts(toolsPath);
-    loadBodyScripts();
+    /****************
+     * INIT SCRIPTS *
+     ****************/
 
+    loadHeadScripts(toolsPath);
+
+    for(let mutate of mutates_list) {
+        let file = mutate + s + main_mutate_file;
+        let path = createPath(file, base_path, s);
+        loadBodyScripts(path);
+    }
 })();
